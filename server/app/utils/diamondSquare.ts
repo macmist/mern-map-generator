@@ -14,7 +14,7 @@ export class DiamondSquare {
     this.matrix = new Array(this.dimension)
       .fill(0)
       .map(() => new Array(this.dimension));
-    this.rb = 4096;
+    this.rb = 20;
     this.min = Number.MAX_SAFE_INTEGER;
     this.max = Number.MIN_SAFE_INTEGER;
   }
