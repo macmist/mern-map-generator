@@ -1,3 +1,5 @@
+import { create as randomSeed, RandomSeed } from "random-seed";
+
 export class DiamondSquare {
   n: number;
   dimension: number;
@@ -5,7 +7,13 @@ export class DiamondSquare {
   rb: number;
   min: number;
   max: number;
-  constructor(n: number) {
+  seed: string;
+  rand: RandomSeed;
+  constructor(
+    n: number,
+    rb: number = 20,
+    seed: string = Date.now().toString()
+  ) {
     if (n <= 0 || !Number.isInteger(n))
       throw new Error("Only natural positive numbers allowed");
     if (n >= 32) throw new Error("n must be between 1 and 31 included");
@@ -14,22 +22,26 @@ export class DiamondSquare {
     this.matrix = new Array(this.dimension)
       .fill(0)
       .map(() => new Array(this.dimension));
-    this.rb = 20;
+    this.rb = rb;
     this.min = Number.MAX_SAFE_INTEGER;
     this.max = Number.MIN_SAFE_INTEGER;
+    this.rand = randomSeed(seed);
+    this.seed = seed;
   }
 
-  generate(): Array<Array<number>> {
-    const matrix = this.initMatrix();
-    let size = this.dimension - 1;
-    while (size > 1) {
-      this.diamondStep(size);
-      this.squareStep(size);
-      size /= 2;
-      this.rb = Math.max(this.rb / 2, 1);
-    }
-    this.normalize();
-    return matrix;
+  generate(): Promise<Array<Array<number>>> {
+    return new Promise((resolve) => {
+      const matrix = this.initMatrix();
+      let size = this.dimension - 1;
+      while (size > 1) {
+        this.diamondStep(size);
+        this.squareStep(size);
+        size /= 2;
+        this.rb = Math.max(this.rb / 2, 1);
+      }
+      this.normalize();
+      return resolve(matrix);
+    });
   }
 
   normalize() {
@@ -50,7 +62,7 @@ export class DiamondSquare {
   }
 
   generateRandom(a: number, b: number): number {
-    return Math.floor(Math.random() * (b - a + 1) + a);
+    return Math.floor(this.rand.random() * (b - a + 1) + a);
   }
 
   diamondStep(squareSize: number) {
