@@ -7,6 +7,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
+app.options("public", cors);
+app.use(express.static("public"));
 
 addAPIRouter(app);
 
