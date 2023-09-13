@@ -12,6 +12,7 @@ export const mapController = () => {
       const rb =
         parseInt(<string>req.query.rb) || parseInt(<string>req.body.rb) || 20;
       const seed = req.query.seed || req.body.seed || Date.now().toString();
+      console.log("received", req.query, n, rb, seed);
       let heights = defaultRangeArray;
       if (req.body.heights && Array.isArray(req.body.heights)) {
         heights = req.body.heights.map((x: any) => {

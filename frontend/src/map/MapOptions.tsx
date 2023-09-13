@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { DEFAULT_N, DEFAULT_RB, MapParams } from "../api/map";
 import {
-  Box,
   Button,
   FormControl,
   InputLabel,
@@ -9,7 +8,6 @@ import {
   Select,
   Stack,
   TextField,
-  Toolbar,
 } from "@mui/material";
 
 interface MapOptionProps {
@@ -68,7 +66,9 @@ const MapOptions = (props: MapOptionProps) => {
       />
       <Button
         variant="contained"
-        onClick={() => onSubmit({ n: n, rb: rb, seed: seed })}
+        onClick={() =>
+          onSubmit({ n: n, rb: rb, seed: seed, ranges: params.ranges })
+        }
       >
         Re Generate
       </Button>

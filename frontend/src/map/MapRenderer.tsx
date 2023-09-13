@@ -12,6 +12,12 @@ const MapRenderer = (props: MapRendererProps) => {
     const image = new Image();
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d", { alpha: false });
+    const size = params.n ? Math.pow(2, params.n) + 1 : 1025;
+
+    if (canvas) {
+      canvas.width = size;
+      canvas.height = size;
+    }
     image.src = `http://localhost:5000/images/${map}?${Date.now().toString()}`;
     image.onload = () => {
       if (ctx) ctx.drawImage(image, 0, 0);
@@ -34,7 +40,9 @@ const MapRenderer = (props: MapRendererProps) => {
 
   return (
     <div className="mapContainer">
-      <canvas id="map" ref={canvasRef} width={1025} height={1025} />
+      <div style={{ maxHeight: 1025, maxWidth: 1025, overflow: "scroll" }}>
+        <canvas id="map" ref={canvasRef} width={1025} height={1025}></canvas>
+      </div>
     </div>
   );
 };
