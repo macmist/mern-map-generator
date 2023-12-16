@@ -1,0 +1,17 @@
+.mapContainer {
+  width: 700px;
+  aspect-ratio: 1 / 1;
+  overflow: auto;
+  padding: 5px;
+  border-radius: 15px;
+  border: 10px solid gold;
+  background-color: black;
+  align-items: center !important;
+  align-content: center !important;
+  display: flex;
+  justify-content: center !important;
+}
+
+.map {
+  display: block;
+}

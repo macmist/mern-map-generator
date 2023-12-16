@@ -1,5 +1,9 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MapParams, fetchMap } from "../api/map";
+import "./style.css";
+import { Layer, Stage, Image } from "react-konva";
+import useImage from "use-image";
+import { KonvaEventObject } from "konva/lib/Node";
 
 interface MapRendererProps {
   params: MapParams;
@@ -7,22 +11,35 @@ interface MapRendererProps {
 
 const MapRenderer = (props: MapRendererProps) => {
   const { params } = props;
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const updateCanvas = useCallback((map: String) => {
-    const image = new Image();
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d", { alpha: false });
-    const size = params.n ? Math.pow(2, params.n) + 1 : 1025;
+  const [imgUrl, setImgUrl] = useState<string>("");
+  const [image] = useImage(imgUrl);
+  const [stageScale, setStageScale] = useState<number>(1);
+  const [stageX, setStageX] = useState<number>(0);
+  const [stageY, setStageY] = useState<number>(0);
 
-    if (canvas) {
-      canvas.width = size;
-      canvas.height = size;
-    }
-    image.src = `http://localhost:5000/images/${map}?${Date.now().toString()}`;
-    image.onload = () => {
-      if (ctx) ctx.drawImage(image, 0, 0);
-    };
-    image.crossOrigin = "anonymous";
+  const onScroll = (e: KonvaEventObject<WheelEvent>) => {
+    e.evt.preventDefault();
+
+    const scaleBy = 1.02;
+    const stage = e.target.getStage();
+    if (!stage) return;
+
+    const position = stage.getPointerPosition();
+    if (!position) return;
+
+    const mouseX = position.x / stageScale - stage.x() / stageScale;
+    const mouseY = position.y / stageScale - stage.y() / stageScale;
+    console.log(position.x, stage.x(), stageScale, mouseX);
+
+    const newScale =
+      e.evt.deltaY > 0 ? stageScale * scaleBy : stageScale / scaleBy;
+    setStageScale(newScale);
+    setStageX((position.x / newScale - mouseX) * newScale);
+    setStageY((position.y / newScale - mouseY) * newScale);
+  };
+
+  const updateCanvas = useCallback((map: String) => {
+    setImgUrl(`http://localhost:5000/images/${map}?${Date.now().toString()}`);
   }, []);
   const generateImage = useCallback(() => {
     fetchMap(params)
@@ -40,9 +57,20 @@ const MapRenderer = (props: MapRendererProps) => {
 
   return (
     <div className="mapContainer">
-      <div style={{ maxHeight: 1025, maxWidth: 1025, overflow: "scroll" }}>
-        <canvas id="map" ref={canvasRef} width={1025} height={1025}></canvas>
-      </div>
+      <Stage
+        width={700}
+        height={700}
+        draggable={true}
+        onWheel={onScroll}
+        scaleX={stageScale}
+        scaleY={stageScale}
+        x={stageX}
+        y={stageY}
+      >
+        <Layer>
+          <Image image={image} />
+        </Layer>
+      </Stage>
     </div>
   );
 };
